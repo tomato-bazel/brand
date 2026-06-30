@@ -1,0 +1,63 @@
+load("@brando//:defs.bzl", "brand_svgs")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("@tomato_pip//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:public"])
+
+# The tomato-bazel mark construction (shapely CSG). EMISSION goes through
+# @brando//marklib (the reusable layered-SVG / composite convention).
+py_library(
+    name = "gen_tomato_lib",
+    srcs = ["gen_tomato.py"],
+    imports = ["."],
+    deps = [
+        "@brando//marklib",
+        requirement("shapely"),
+    ],
+)
+
+py_binary(
+    name = "gen_tomato",
+    srcs = ["gen_tomato.py"],
+    imports = ["."],
+    deps = [
+        "@brando//marklib",
+        requirement("shapely"),
+    ],
+)
+
+# Hermetic tomato rasterizer (brando's Pillow helpers; supersampled PNGs).
+py_binary(
+    name = "raster_tomato",
+    srcs = ["raster_tomato.py"],
+    imports = ["."],
+    deps = [
+        ":gen_tomato_lib",
+        "@brando//marklib:raster",
+        requirement("pillow"),
+    ],
+)
+
+# tomato-bazel layered SVGs. The "transparent" variant emits no bg.svg layer
+# (keep these lists in sync with gen_tomato.py VARIANTS / LAYERS).
+_TOMATO_BG_VARIANTS = [
+    "inkbg",
+    "inkbg_flat",
+    "whitebg",
+]
+
+_TOMATO_LAYERS = [
+    "svg",
+    "body.svg",
+    "calyx.svg",
+]
+
+brand_svgs(
+    name = "tomato_svgs",
+    generator = ":gen_tomato",
+    outs = (
+        ["tomato_%s.%s" % (v, lyr) for v in _TOMATO_BG_VARIANTS for lyr in _TOMATO_LAYERS] +
+        ["tomato_%s.bg.svg" % v for v in _TOMATO_BG_VARIANTS] +
+        ["tomato_transparent.%s" % lyr for lyr in _TOMATO_LAYERS]
+    ),
+)

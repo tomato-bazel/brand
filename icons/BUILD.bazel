@@ -1,0 +1,28 @@
+load("@brando//:defs.bzl", "brand_icons")
+
+package(default_visibility = ["//visibility:public"])
+
+# tomato-bazel org-avatar PNGs (square, 512 + 1024), per variant, rasterized
+# hermetically via @brando//marklib:raster. Keep VARIANTS/sizes in sync with
+# gen/raster_tomato.py.
+_TOMATO_VARIANTS = [
+    "inkbg",
+    "inkbg_flat",
+    "transparent",
+    "whitebg",
+]
+
+_TOMATO_SIZES = [
+    512,
+    1024,
+]
+
+brand_icons(
+    name = "tomato_icons",
+    outs = [
+        "tomato_%s_%d.png" % (v, s)
+        for v in _TOMATO_VARIANTS
+        for s in _TOMATO_SIZES
+    ],
+    rasterizer = "//gen:raster_tomato",
+)

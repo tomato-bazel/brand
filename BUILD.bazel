@@ -1,0 +1,24 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["requirements.txt"])
+
+# Canonical layered SVGs (every tomato variant).
+filegroup(
+    name = "svgs",
+    srcs = ["//gen:tomato_svgs"],
+)
+
+# Org-avatar raster set (PNG, both sizes, every variant).
+filegroup(
+    name = "icons",
+    srcs = ["//icons:tomato_icons"],
+)
+
+# Everything: vectors + icons.
+filegroup(
+    name = "all",
+    srcs = [
+        ":icons",
+        ":svgs",
+    ],
+)
