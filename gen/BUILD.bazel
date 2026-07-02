@@ -4,6 +4,38 @@ load("@tomato_pip//:requirements.bzl", "requirement")
 
 package(default_visibility = ["//visibility:public"])
 
+# ---- v2: the ANGULAR / GEOMETRIC redesign (lowpoly / flat / mark) ------------
+py_library(
+    name = "gen_tomato_v2_lib",
+    srcs = ["gen_tomato_v2.py"],
+    imports = ["."],
+    deps = [
+        "@brando//marklib",
+        requirement("shapely"),
+    ],
+)
+
+py_binary(
+    name = "gen_tomato_v2",
+    srcs = ["gen_tomato_v2.py"],
+    imports = ["."],
+    deps = [
+        "@brando//marklib",
+        requirement("shapely"),
+    ],
+)
+
+py_binary(
+    name = "raster_tomato_v2",
+    srcs = ["raster_tomato_v2.py"],
+    imports = ["."],
+    deps = [
+        ":gen_tomato_v2_lib",
+        "@brando//marklib:raster",
+        requirement("pillow"),
+    ],
+)
+
 # The tomato-bazel mark construction (shapely CSG). EMISSION goes through
 # @brando//marklib (the reusable layered-SVG / composite convention).
 py_library(
@@ -60,4 +92,35 @@ brand_svgs(
         ["tomato_%s.bg.svg" % v for v in _TOMATO_BG_VARIANTS] +
         ["tomato_transparent.%s" % lyr for lyr in _TOMATO_LAYERS]
     ),
+)
+
+# ---- v2 layered SVGs: the ANGULAR redesign. Each style emits a different set of
+# tone layers (the low-poly look groups facets/blades into base/dark/light), so
+# the per-style layer lists are explicit. Keep in sync with gen_tomato_v2.py.
+_V2_LAYERS = {
+    "lowpoly": ["body_base", "body_dark", "body_light", "calyx_base", "calyx_dark", "calyx_light"],
+    "flat": ["body_base", "calyx_base"],
+    "mark": ["body_dark", "body_light", "calyx_base", "calyx_dark", "calyx_light"],
+}
+
+# composite + per-tone layer SVGs (every style x ink/transparent) ...
+_V2_SVG_OUTS = [
+    "tomato_v2_%s_%s.%s.svg" % (style, bg, lyr)
+    for style in _V2_LAYERS
+    for bg in ("inkbg", "transparent")
+    for lyr in _V2_LAYERS[style]
+] + [
+    "tomato_v2_%s_%s.svg" % (style, bg)
+    for style in _V2_LAYERS
+    for bg in ("inkbg", "transparent")
+] + [
+    # ... plus the rounded-square bg layer only for the ink variants.
+    "tomato_v2_%s_inkbg.bg.svg" % style
+    for style in _V2_LAYERS
+]
+
+brand_svgs(
+    name = "tomato_v2_svgs",
+    generator = ":gen_tomato_v2",
+    outs = _V2_SVG_OUTS,
 )

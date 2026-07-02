@@ -26,3 +26,25 @@ brand_icons(
     ],
     rasterizer = "//gen:raster_tomato",
 )
+
+# ---- v2 org-avatar PNGs: the ANGULAR redesign (lowpoly / flat / mark), each on
+# the ink rounded-square AND transparent, at 512 + 1024. Keep VARIANTS/sizes in
+# sync with gen/raster_tomato_v2.py.
+_TOMATO_V2_VARIANTS = [
+    "lowpoly_inkbg",
+    "lowpoly_transparent",
+    "flat_inkbg",
+    "flat_transparent",
+    "mark_inkbg",
+    "mark_transparent",
+]
+
+brand_icons(
+    name = "tomato_v2_icons",
+    outs = [
+        "tomato_v2_%s_%d.png" % (v, s)
+        for v in _TOMATO_V2_VARIANTS
+        for s in _TOMATO_SIZES
+    ],
+    rasterizer = "//gen:raster_tomato_v2",
+)
