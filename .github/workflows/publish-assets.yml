@@ -1,0 +1,53 @@
+name: publish-assets
+
+# Build the brand assets (//:assets — tomato marks + org-avatar rasters) and
+# publish them to the static.tbzl.dev CDN (S3 behind CloudFront), keylessly via
+# GitHub OIDC (the tbzl-brand-publish role). The aion/brand -> static.aion analog.
+#
+# Repo vars: AWS_STATIC_PUBLISH_ROLE_ARN, STATIC_BUCKET, STATIC_DISTRIBUTION_ID
+# (from the tomato-bazel/infra tbzl-static-cdn stack).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gen/**"
+      - "icons/**"
+      - "fonts/**"
+      - "mdbook/**"
+      - "BUILD.bazel"
+      - "MODULE.bazel"
+      - ".github/workflows/publish-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC -> AWS
+  contents: read
+
+concurrency:
+  group: publish-assets
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: aws credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_STATIC_PUBLISH_ROLE_ARN }}
+          aws-region: us-east-1
+      - uses: bazel-contrib/setup-bazel@0.13.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+      - name: build brand assets
+        run: bazel build //:assets
+      - name: publish to static.tbzl.dev
+        run: |
+          rm -rf _assets && mkdir -p _assets
+          unzip -o bazel-bin/tbzl-brand-assets.zip -d _assets
+          aws s3 sync _assets "s3://${{ vars.STATIC_BUCKET }}/" --delete
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.STATIC_DISTRIBUTION_ID }}" --paths "/*"

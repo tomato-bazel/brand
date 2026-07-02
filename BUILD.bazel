@@ -1,17 +1,27 @@
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files", "strip_prefix")
+load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
+
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["requirements.txt"])
 
-# Canonical layered SVGs (every tomato variant).
+# Canonical layered SVGs (every tomato variant). v1 = friendly round tomato;
+# v2 = the angular/geometric redesign (lowpoly / flat / mark).
 filegroup(
     name = "svgs",
-    srcs = ["//gen:tomato_svgs"],
+    srcs = [
+        "//gen:tomato_svgs",
+        "//gen:tomato_v2_svgs",
+    ],
 )
 
-# Org-avatar raster set (PNG, both sizes, every variant).
+# Org-avatar raster set (PNG, both sizes, every variant; v1 + v2).
 filegroup(
     name = "icons",
-    srcs = ["//icons:tomato_icons"],
+    srcs = [
+        "//icons:tomato_icons",
+        "//icons:tomato_v2_icons",
+    ],
 )
 
 # Everything: vectors + icons.
@@ -21,4 +31,38 @@ filegroup(
         ":icons",
         ":svgs",
     ],
+)
+
+# `bazel build //:assets` -> bazel-bin/tbzl-brand-assets.zip: the tomato marks
+# (SVG) + org-avatar rasters (PNG), staged for publishing to the static.tbzl.dev
+# brand CDN (tomato-bazel/brand CI syncs the unzipped tree). Mirrors aion/brand's
+# //:assets.
+pkg_files(
+    name = "_mark_files",
+    srcs = ["//gen:tomato_svgs", "//gen:tomato_v2_svgs"],
+    prefix = "mark",
+    strip_prefix = strip_prefix.files_only(),
+)
+
+pkg_files(
+    name = "_icon_files",
+    srcs = ["//icons:tomato_icons", "//icons:tomato_v2_icons"],
+    prefix = "icon",
+    strip_prefix = strip_prefix.files_only(),
+)
+
+pkg_files(
+    name = "_doc_files",
+    srcs = ["README.md"],
+    strip_prefix = strip_prefix.files_only(),
+)
+
+pkg_zip(
+    name = "assets",
+    srcs = [
+        ":_doc_files",
+        ":_icon_files",
+        ":_mark_files",
+    ],
+    package_file_name = "tbzl-brand-assets.zip",
 )

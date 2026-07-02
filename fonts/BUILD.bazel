@@ -1,0 +1,9 @@
+package(default_visibility = ["//visibility:public"])
+
+# Space Grotesk (SIL OFL 1.1) — the tomato-bazel docs/UI face, redistributed
+# under the OFL. Consumed by //mdbook:theme.
+exports_files([
+    "SpaceGrotesk-Medium.ttf",
+    "SpaceGrotesk-SemiBold.ttf",
+    "OFL.txt",
+])
