@@ -120,9 +120,14 @@ brand_package(
     spec = "tomato.textproto",
 )
 
+# Published as a GitHub Release asset on this repo, not to a CDN bucket. A
+# release needs no infrastructure and sits on the repo that owns the brand; the
+# `integrity` in the generated snippet is what makes the URL mean one thing,
+# since a release asset can be replaced.
 brand_publish_plan(
     name = "tomato_publish",
-    base_url = "https://static.aion.savvifi.dev",
+    base_url = "https://github.com/tomato-bazel/brand/releases/download/v0.1.0",
+    prefix = "",
     brand = "tomato",
     package = ":tomato_package",
     version = BRANDO_VERSION,
