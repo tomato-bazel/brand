@@ -1,0 +1,25 @@
+# tomato-bazel — the BrandSpec.
+id: "tomato"
+display_name: "tomato-bazel"
+
+identity {
+  legal_name: "tomato-bazel"
+  positioning:
+    "A curated Bazel distribution: the rules, toolchains and registry a real "
+    "build needs, versioned together and proven to compose."
+  story:
+    "Bazel is excellent and assembling a working stack from it is not. "
+    "tomato-bazel is the assembled stack -- a distro, in the sense a Linux "
+    "distro is one."
+  voice: "Practical. It is a build system; nobody is here to be delighted."
+  usage_rules:
+    "The green calyx nods to Bazel's leaf and is the only place the two brands "
+    "touch. Do not extend the reference further."
+}
+
+catalog {
+  kinds: ARTIFACT_KIND_THEME_BINPB
+  kinds: ARTIFACT_KIND_THEME_JSON
+  kinds: ARTIFACT_KIND_MARK_SVG
+  kinds: ARTIFACT_KIND_MARK_PNG
+}
