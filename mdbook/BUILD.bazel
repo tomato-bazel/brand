@@ -15,17 +15,22 @@ load("@brando//:defs.bzl", "brand_mdbook_theme")
 
 package(default_visibility = ["//visibility:public"])
 
+# brando 0.2.0 uses the LEGACY `colors` path here, on purpose: tomato-bazel/brand
+# is the one brand repo with NO skins/ directory at all, so there is no
+# meridian.theme.v1 Theme to derive from. The token names are now the schema's
+# roles rather than fastverk's nicknames (@INK@/@CREAM@/@TERTIARY@), which is why
+# these moved even though the values did not.
+#
+# TODO: give tomato a skin. It is the only brand that cannot drive its docs, its
+# brando 0.2.0: derived from //skins:tomato, the skin this repo gained in the same
+# wave. The ten-entry `colors` dict that was here — itself a rename of seven
+# fastverk-nicknamed attributes — was the second of three places tomato typed its
+# palette. It is now typed once, in skins/tomato.textpb.
 brand_mdbook_theme(
     name = "theme",
-    accent = "#E64A33",  # tomato red (bright)
-    accent2 = "#C0392B",  # tomato red (deep)
-    cream = "#F2EDE3",
     favicon = "//gen:tomato_v2_mark_transparent.svg",
     font_family = "Space Grotesk",
-    ink = "#15161A",
-    ink2 = "#1c1e24",
     medium_ttf = "//fonts:SpaceGrotesk-Medium.ttf",
-    muted = "#8C8578",
     semibold_ttf = "//fonts:SpaceGrotesk-SemiBold.ttf",
-    tertiary = "#3FA34D",  # the calyx green, as the tertiary accent
+    skin = "//skins:tomato_json",
 )

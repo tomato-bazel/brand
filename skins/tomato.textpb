@@ -1,0 +1,76 @@
+# tomato-bazel — the meridian.theme.v1 skin.
+#
+# tomato was the ONE brand in the fleet with no skin at all, which made it the one
+# brand that could not drive its docs, its console and any meridian renderer from
+# a single source. Its palette instead lived in three places that had already
+# started to disagree:
+#
+#   * tbzl-site/src/styles/global.css   — the main Astro site's :root variables
+#   * mdbook/BUILD.bazel                — the dev docs' theme, re-typed
+#   * gen/gen_tomato_v2.py              — the mark's own Spec
+#
+# This reconciles them. Where the docs and the site differed, the SITE wins: it is
+# the surface the brand is actually judged on, and its neutrals are the ones the
+# mark's ground was chosen against. Two values therefore move in the docs —
+# fg #F2EDE3 -> #ECE7DA and muted #8C8578 -> #9A9488 — which is the point of
+# having one source rather than three.
+#
+# The mark stays the mark: gen_tomato_v2's body #E64A33 and calyx #43A047 are the
+# logo's own facet colours and are not palette roles. The site's flat brand red
+# (#E64A33) and Bazel-leaf green (#3FA34D) are what appear here.
+
+id: "tomato"
+display_name: "tomato-bazel"
+
+dark {
+  bg: "#15161A"            # --ink; also the mark's rounded-square ground
+  surface: "#1c1e24"       # --ink-2 (panels / cards)
+  fg: "#ECE7DA"            # --cream
+  muted: "#9A9488"         # --muted
+  # --line is rgba(236,231,218,0.10) over --ink; this is that composite as a
+  # solid, because a Theme role cannot carry alpha and every renderer needs a
+  # concrete value. Computed, not eyeballed.
+  border: "#2A2B2D"
+  accent: "#E64A33"        # --amber: the tomato red (links, selection, primary action)
+  accent_strong: "#C0392B" # --amber-2: the deep red (gradient end / pressed)
+  on_accent: "#15161A"     # ink on the red fill — 5.03:1
+  danger: "#E23B57"        # --block
+  success: "#3FA34D"       # --leaf / --ok: the Bazel-leaning green
+  code_bg: "#1c1e24"
+  code_fg: "#E6A93B"       # --gold, the warm code tint
+}
+
+light {
+  bg: "#F6F2E9"            # the docs' light ground
+  surface: "#FFFFFF"
+  fg: "#15161A"            # ink
+  muted: "#5F5A52"         # muted ink; darkened from the dark-mode grey to carry
+                           # 4.5:1 on both light grounds
+  border: "#DDD6C7"
+  accent: "#B3341F"        # the tomato red deepened until it reads as TEXT on
+                           # cream; #E64A33 is 3.0:1 there, which is a fill, not a link
+  accent_strong: "#15161A"
+  on_accent: "#F6F2E9"     # cream on the deepened red
+  danger: "#B3243B"
+  success: "#2E7D3A"       # --leaf-dk
+  code_bg: "#EDE7DA"
+  # The docs' LIGHT_CODE_FG was #9A5F12, which is 4.24:1 on this code ground —
+  # under AA for text, and code is text. Darkened one step at the same hue to
+  # 4.77:1 rather than carried over out of deference to where it came from.
+  code_fg: "#8F5810"
+}
+
+typography {
+  # --sans / --mono, verbatim from tbzl-site/src/styles/global.css.
+  sans: "\"Space Grotesk\", ui-sans-serif, system-ui, -apple-system, sans-serif"
+  mono: "ui-monospace, \"SF Mono\", SFMono-Regular, Menlo, Consolas, \"Liberation Mono\", monospace"
+  base_size_px: 16
+  heading_weight: 600
+  body_weight: 400
+  heading_tracking: "-0.015"
+}
+
+metrics {
+  radius_px: 8
+  unit_px: 4
+}
