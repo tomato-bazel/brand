@@ -1,0 +1,18 @@
+"""The tomato-bazel skin — the brand as a meridian.theme.v1.Theme.
+
+Added in the brando 0.2.0 wave. tomato was the only brand repo with no skins/
+directory, so its palette lived in three places (the Astro site's :root, the
+mdBook theme's re-typed attributes, and the mark's Spec) with no way to reconcile
+them. //mdbook:theme now derives from this.
+"""
+
+load("@brando//:defs.bzl", "brand_skin")
+
+package(default_visibility = ["//visibility:public"])
+
+brand_skin(
+    name = "tomato",
+    textpb = "tomato.textpb",
+)
+
+exports_files(["tomato.textpb"])
