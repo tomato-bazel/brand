@@ -70,8 +70,15 @@ py_binary(
     ],
 )
 
-# tomato-bazel layered SVGs. The "transparent" variant emits no bg.svg layer
-# (keep these lists in sync with gen_tomato.py VARIANTS / LAYERS).
+# tomato-bazel layered SVGs. These lists are now the ONLY copy: brand_svgs
+# computes the outs from them AND passes them to the generator as
+# --variant/--layer, so gen_tomato.py no longer needs its own VARIANTS/LAYERS
+# constants for a human to mirror here. The "keep these lists in sync" comment
+# that used to sit on this block is gone with the second list.
+#
+# A background layer only exists for the variants that HAVE a background, which
+# is real structure rather than an exception to paper over -- so `transparent`
+# gets no bg.svg, stated once in extra_outs.
 _TOMATO_BG_VARIANTS = [
     "inkbg",
     "inkbg_flat",
@@ -86,12 +93,11 @@ _TOMATO_LAYERS = [
 
 brand_svgs(
     name = "tomato_svgs",
+    extra_outs = ["tomato_%s.bg.svg" % v for v in _TOMATO_BG_VARIANTS],
     generator = ":gen_tomato",
-    outs = (
-        ["tomato_%s.%s" % (v, lyr) for v in _TOMATO_BG_VARIANTS for lyr in _TOMATO_LAYERS] +
-        ["tomato_%s.bg.svg" % v for v in _TOMATO_BG_VARIANTS] +
-        ["tomato_transparent.%s" % lyr for lyr in _TOMATO_LAYERS]
-    ),
+    layers = _TOMATO_LAYERS,
+    prefix = "tomato",
+    variants = _TOMATO_BG_VARIANTS + ["transparent"],
 )
 
 # ---- v2 layered SVGs: the ANGULAR redesign. Each style emits a different set of

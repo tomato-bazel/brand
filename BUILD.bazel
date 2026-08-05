@@ -1,3 +1,5 @@
+load("@brando//:version.bzl", BRANDO_VERSION = "VERSION")
+load("@brando//pkg:defs.bzl", "brand_package", "brand_publish_plan")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_files", "strip_prefix")
 load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
 
@@ -65,4 +67,63 @@ pkg_zip(
         ":_mark_files",
     ],
     package_file_name = "tbzl-brand-assets.zip",
+)
+
+# ── the .brando package ──────────────────────────────────────────────────────
+#
+# `//:assets` above stages a zip for the CDN, and that zip is a BAG OF FILES: a
+# consumer can extract it but cannot ask it for "the favicon" without already
+# knowing what tomato calls that. It is also one of two such bundles in the fleet
+# assembled by hand, with a different layout and naming convention from the other.
+#
+# A .brando carries a protoc-validated manifest, so every artifact has a logical
+# name, a kind and a hash. `rules_brand` turns that into targets, which is what
+# lets tbzl-site and the dev docs wear this brand without becoming brand
+# pipelines. `//:assets` stays for the existing CDN sync.
+brand_package(
+    name = "tomato_package",
+    assets = {
+        "theme.binpb": {
+            "kind": "ARTIFACT_KIND_THEME_BINPB",
+            "label": "//skins:tomato_binpb",
+        },
+        "theme.json": {
+            "kind": "ARTIFACT_KIND_THEME_JSON",
+            "label": "//skins:tomato_json",
+        },
+        # The composed v2 mark is tomato's mark: v2 is the current identity and
+        # v1 is kept for the surfaces that have not moved. A consumer asking for
+        # "the mark" should get the one in use.
+        "mark.svg": {
+            "kind": "ARTIFACT_KIND_MARK_SVG",
+            "label": "//gen:tomato_v2_mark_transparent.svg",
+            "variant": "mark_transparent",
+        },
+        "mark-inkbg.svg": {
+            "kind": "ARTIFACT_KIND_MARK_SVG",
+            "label": "//gen:tomato_v2_mark_inkbg.svg",
+            "variant": "mark_inkbg",
+        },
+        "icon-512.png": {
+            "kind": "ARTIFACT_KIND_MARK_PNG",
+            "label": "//icons:tomato_v2_mark_inkbg_512.png",
+            "size_px": 512,
+        },
+        "icon-1024.png": {
+            "kind": "ARTIFACT_KIND_MARK_PNG",
+            "label": "//icons:tomato_v2_mark_inkbg_1024.png",
+            "size_px": 1024,
+        },
+    },
+    brando_version = BRANDO_VERSION,
+    source_repo = "tomato-bazel/brand",
+    spec = "tomato.textproto",
+)
+
+brand_publish_plan(
+    name = "tomato_publish",
+    base_url = "https://static.aion.savvifi.dev",
+    brand = "tomato",
+    package = ":tomato_package",
+    version = BRANDO_VERSION,
 )

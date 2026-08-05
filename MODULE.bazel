@@ -19,7 +19,7 @@ bazel_dep(name = "rules_pkg", version = "1.0.1")
 
 # brando — the reusable brand pipeline (marklib + the packaging macros).
 # Resolved from the fastverk registry (mattmarshall/brando).
-bazel_dep(name = "brando", version = "0.2.0")
+bazel_dep(name = "brando", version = "0.3.0")
 
 # The Theme schema + protoc, for brand_skin's --encode validation gate.
 bazel_dep(name = "meridian_schemas", version = "0.17.0")
