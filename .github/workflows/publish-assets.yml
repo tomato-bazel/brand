@@ -7,6 +7,15 @@ name: publish-assets
 # Repo vars: AWS_STATIC_PUBLISH_ROLE_ARN, STATIC_BUCKET, STATIC_DISTRIBUTION_ID
 # (from the tomato-bazel/infra tbzl-static-cdn stack).
 on:
+  pull_request:
+    paths:
+      - "gen/**"
+      - "icons/**"
+      - "fonts/**"
+      - "mdbook/**"
+      - "BUILD.bazel"
+      - "MODULE.bazel"
+      - ".github/workflows/publish-assets.yml"
   push:
     branches: [main]
     paths:
@@ -24,27 +33,31 @@ permissions:
   contents: read
 
 concurrency:
-  group: publish-assets
+  group: publish-assets-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: boston-linux-x64-tbzl
     steps:
       - uses: actions/checkout@v4
       - name: aws credentials (OIDC)
+        if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_STATIC_PUBLISH_ROLE_ARN }}
           aws-region: us-east-1
-      - uses: bazel-contrib/setup-bazel@0.13.0
-        with:
-          bazelisk-cache: true
-          disk-cache: true
-          repository-cache: true
       - name: build brand assets
-        run: bazel build //:assets
+        run: |
+          set -euo pipefail
+          : "${TBZL_OUTPUT_ROOT:?Dell output root is required}"
+          : "${TBZL_CACHE_ROOT:?Dell shared cache root is required}"
+          bazel --version
+          bazel --output_user_root="$TBZL_OUTPUT_ROOT" build \
+            --repository_cache="$TBZL_CACHE_ROOT/repo" //:assets
+          unzip -t bazel-bin/tbzl-brand-assets.zip
       - name: publish to static.tbzl.dev
+        if: github.event_name != 'pull_request'
         run: |
           rm -rf _assets && mkdir -p _assets
           unzip -o bazel-bin/tbzl-brand-assets.zip -d _assets
